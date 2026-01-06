@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="univ.etu.projet.projetbornepaiement.controllers.PaymentWaitController">
+    <children>
+        <VBox alignment="CENTER" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Label text="Paiement par Carte Bancaire">
+                    <font>
+                        <Font size="24.0" />
+                    </font>
+                </Label>
+
+                <Label text="Montant à régler :" textFill="#757575">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+
+                <!-- Le montant sera mis à jour par le contrôleur -->
+                <Label fx:id="amountLabel" text="0.00 €" textFill="#2196f3">
+                    <font>
+                        <Font name="System Bold" size="48.0" />
+                    </font>
+                </Label>
+
+                <!-- Animation de chargement -->
+                <ProgressIndicator prefHeight="80.0" prefWidth="80.0" />
+
+                <Label text="Veuillez insérer votre carte dans le lecteur..." textFill="#555555">
+                    <font>
+                        <Font name="System Italic" size="18.0" />
+                    </font>
+                </Label>
+
+                <Label fx:id="statusLabel" text="Recherche de lecteur..." textFill="ORANGE" />
+            </children>
+        </VBox>
+
+        <!-- Bouton Annuler en bas -->
+        <Button onAction="#handleCancel" text="Annuler la transaction" textFill="RED" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="30.0" style="-fx-font-size: 14px;"/>
+
+        <!-- BOUTON DEBUG : À utiliser seulement si tu n'as pas ton lecteur sous la main -->
+        <Button onAction="#forceSimulation" text="[DEBUG] Simuler Insertion" AnchorPane.bottomAnchor="30.0" AnchorPane.rightAnchor="30.0" style="-fx-opacity: 0.5;" />
+    </children>
+</AnchorPane>

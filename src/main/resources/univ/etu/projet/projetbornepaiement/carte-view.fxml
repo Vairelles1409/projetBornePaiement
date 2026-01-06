@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="univ.etu.projet.projetbornepaiement.controllers.CarteController">
+    <children>
+        <!-- Titre -->
+        <Label text="Récapitulatif de votre commande" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+
+        <!-- Liste des articles (Scrollable) -->
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" AnchorPane.bottomAnchor="150.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="70.0">
+            <content>
+                <VBox fx:id="cartContainer" spacing="10.0" />
+            </content>
+        </ScrollPane>
+
+        <!-- Zone Totaux et Coupon (Bas de page) -->
+        <AnchorPane prefHeight="130.0" style="-fx-background-color: #eee;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <children>
+                <!-- Zone Coupon -->
+                <HBox alignment="CENTER_LEFT" spacing="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">
+                    <Label text="Code Promo :" />
+                    <TextField fx:id="couponField" promptText="EX: PROMO10" />
+                    <Button onAction="#handleApplyCoupon" text="Appliquer" />
+                </HBox>
+
+                <!-- Total -->
+                <HBox alignment="CENTER_RIGHT" spacing="10.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                    <Label text="Total à payer :">
+                        <font><Font size="18.0" /></font>
+                    </Label>
+                    <Label fx:id="totalLabel" text="0.00 €" textFill="#e91e63">
+                        <font><Font name="System Bold" size="28.0" /></font>
+                    </Label>
+                </HBox>
+
+                <!-- Boutons Actions -->
+                <Button onAction="#handleBackToMenu" text="Continuer mes achats" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" style="-fx-font-size: 14px;"/>
+
+                <Button onAction="#handleClearCart" text="Annuler Tout" textFill="RED" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="200.0" style="-fx-font-size: 14px;"/>
+
+                <Button onAction="#handlePayment" text="PAYER LA COMMANDE" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" AnchorPane.bottomAnchor="20.0" AnchorPane.rightAnchor="20.0" />
+            </children>
+        </AnchorPane>
+    </children>
+</AnchorPane>
