@@ -5,6 +5,8 @@ module univ.etu.projet.projetbornepaiement {
 
     requires org.kordamp.bootstrapfx.core;
 
+    requires com.fazecast.jSerialComm;
+
     opens univ.etu.projet.projetbornepaiement to javafx.fxml;
     exports univ.etu.projet.projetbornepaiement;
     exports univ.etu.projet.projetbornepaiement.controllers;

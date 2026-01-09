@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import univ.etu.projet.projetbornepaiement.SceneManager;
 
+import java.io.IOException;
+
 public class WelcomeController {
     @FXML
     private Label welcomeText;
@@ -19,4 +21,10 @@ public class WelcomeController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    public void goToPinPadTest() throws IOException {
+        SceneManager.setRoot("pinpad-test-view.fxml");
+    }
+
 }

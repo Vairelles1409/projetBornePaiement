@@ -21,4 +21,5 @@
     <Label text="Bienvenue sur votre borne de commande"/>
 
     <Button text="Toucher pour commander" onAction="#onStartButtonClick" style="-fx-font-size: 18px; -fx-padding: 15px 30px;"/>
+    <Button text="Test PinPad" onAction="#goToPinPadTest"/>
 </VBox>
