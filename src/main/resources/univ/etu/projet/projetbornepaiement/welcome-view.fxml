@@ -3,23 +3,35 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- Attention ici : on pointe vers le package controllers -->
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="univ.etu.projet.projetbornepaiement.controllers.WelcomeController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
+<!-- 1. La racine devient un AnchorPane pour permettre le positionnement absolu -->
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="univ.etu.projet.projetbornepaiement.controllers.WelcomeController">
+    <children>
 
-    <Label text="Restaurant Le AF'OUM TCHOP">
-        <font>
-            <Font name="System Bold" size="24.0"/>
-        </font>
-    </Label>
+        <!-- 2. Ton contenu principal reste dans une VBox, qu'on ancre aux 4 coins pour qu'elle prenne toute la place et centre le contenu -->
+        <VBox alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <Label text="Restaurant Le AF'OUM TCHOP">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
 
-    <Label text="Bienvenue sur votre borne de commande"/>
+                <Label text="Bienvenue sur votre borne de commande" />
 
-    <Button text="Toucher pour commander" onAction="#onStartButtonClick" style="-fx-font-size: 18px; -fx-padding: 15px 30px;"/>
-    <Button text="Test PinPad" onAction="#goToPinPadTest"/>
-</VBox>
+                <Button onAction="#onStartButtonClick" style="-fx-font-size: 18px; -fx-padding: 15px 30px;" text="Toucher pour commander" />
+            </children>
+        </VBox>
+
+        <!-- 3. Le bouton de test est sorti de la VBox, mais reste dans l'AnchorPane.
+             Maintenant, les ancres fonctionnent ! -->
+        <Button onAction="#goToTestMode" style="-fx-background-color: transparent; -fx-text-fill: gray; -fx-font-size: 10px;" text="🛠 Test Matériel" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+
+    </children>
+</AnchorPane>

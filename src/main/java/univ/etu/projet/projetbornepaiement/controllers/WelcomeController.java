@@ -23,7 +23,7 @@ public class WelcomeController {
     }
 
     @FXML
-    public void goToPinPadTest() throws IOException {
+    public void goToTestMode() throws IOException {
         SceneManager.setRoot("pinpad-test-view.fxml");
     }
 
