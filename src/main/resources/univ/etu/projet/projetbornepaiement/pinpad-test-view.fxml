@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="univ.etu.projet.projetbornepaiement.controllers.PinPadTestController">
+    <children>
+        <VBox alignment="CENTER" spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <children>
+                <Label text="Test Unitaire PinPad (COM5)">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+
+                <Label text="Les données brutes s'afficheront ci-dessous :" textFill="#666666" />
+
+                <TextArea fx:id="logArea" editable="false" prefHeight="300.0" prefWidth="600.0" wrapText="true" style="-fx-font-family: 'Monospaced'; -fx-font-size: 14px;">
+                    <maxWidth>600</maxWidth>
+                </TextArea>
+
+                <Button onAction="#handleClear" text="Effacer l'historique" />
+            </children>
+        </VBox>
+
+        <Button onAction="#handleBack" text="Retour Accueil" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" />
+    </children>
+</AnchorPane>

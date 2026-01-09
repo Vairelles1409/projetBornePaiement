@@ -84,9 +84,9 @@ public class PaymentWaitController {
 
     private void goToPinScreen() {
         try {
-            // TODO: Créer la vue pin-entry-view.fxml plus tard
-            System.out.println("Navigation vers PIN...");
-            // SceneManager.setRoot("pin-entry-view.fxml");
+            System.out.println("Carte détectée -> Demande du PIN");
+            SceneManager.setRoot("payment-pin-view.fxml");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
