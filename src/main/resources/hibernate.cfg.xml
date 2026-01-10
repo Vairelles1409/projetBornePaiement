@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/afoum_tchop</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password"></property> <!-- Put your actual password here -->
+
+        <!-- Dialect tells Hibernate to write MySQL-style SQL -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- VERY IMPORTANT: 'update' tells Hibernate to create the tables for you -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- Show the SQL Hibernate writes in the console -->
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+
+
+        <mapping class="etu.ensi.model.Personne"/>
+        <mapping class="etu.ensi.model.Administrateur"/>
+        <mapping class="etu.ensi.model.Cuisinier"/>
+        <mapping class="etu.ensi.model.Client"/>
+        <mapping class="etu.ensi.model.Plat"/>
+        <mapping class="etu.ensi.model.Ligne_commande"/>
+        <mapping class="etu.ensi.model.Commande"/>
+        <mapping class="etu.ensi.model.Coupon_reduction"/>
+        <mapping class="etu.ensi.model.Paiement"/>
+        <mapping class="etu.ensi.model.Ticket"/>
+
+    </session-factory>
+</hibernate-configuration>
