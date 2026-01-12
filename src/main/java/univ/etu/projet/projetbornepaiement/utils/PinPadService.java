@@ -17,18 +17,17 @@ public class PinPadService {
 
     /**
      * Lance l'écoute.
-     * @param portName "COM5"
+     * @param portName "COM6"
      * @param onDataReceived Fonction appelée pour afficher le texte
      */
     public boolean startListening(String portName, Consumer<String> onDataReceived) {
         // Si déjà en marche, on ne fait rien
         if (isRunning) return true;
 
-        // Configuration du port (Identique à ton code qui marche)
+        // Configuration du port
         port = SerialPort.getCommPort(portName);
         port.setBaudRate(9600);
 
-        // Timeout important pour éviter de bloquer le processeur
         port.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
 
         if (!port.openPort()) {
@@ -39,7 +38,7 @@ public class PinPadService {
         isRunning = true;
         System.out.println("Service démarré sur " + portName);
 
-        // Lancement du Thread (Tâche de fond)
+        // Lancement du Thread
         Thread listenerThread = new Thread(() -> {
             try (InputStream in = port.getInputStream()) {
                 byte[] buffer = new byte[1024];
@@ -51,10 +50,9 @@ public class PinPadService {
                         // Conversion des octets
                         String receivedData = new String(buffer, 0, numRead);
 
-                        // Envoi vers l'interface graphique (JavaFX Thread)
+                        // Envoi vers l'interface graphique
                         Platform.runLater(() -> onDataReceived.accept(receivedData));
                     }
-                    // Petite pause pour ne pas surcharger le CPU (10ms)
                     Thread.sleep(10);
                 }
             } catch (Exception e) {
@@ -65,7 +63,7 @@ public class PinPadService {
             }
         });
 
-        listenerThread.setDaemon(true); // S'arrête si tu fermes la fenêtre
+        listenerThread.setDaemon(true);
         listenerThread.start();
         return true;
     }

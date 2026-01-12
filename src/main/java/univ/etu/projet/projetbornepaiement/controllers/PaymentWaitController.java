@@ -15,7 +15,7 @@ public class PaymentWaitController {
     @FXML private Label amountLabel;
     @FXML private Label statusLabel;
 
-    private boolean keepChecking = true; // Pour arrêter le thread si on change de page
+    private boolean keepChecking = true;
 
     @FXML
     public void initialize() {
@@ -24,7 +24,7 @@ public class PaymentWaitController {
 
         // 2. Lancer la surveillance du lecteur dans un autre Thread
         Thread cardDetector = new Thread(this::waitForCardTask);
-        cardDetector.setDaemon(true); // S'arrête si l'appli ferme
+        cardDetector.setDaemon(true); 
         cardDetector.start();
     }
 

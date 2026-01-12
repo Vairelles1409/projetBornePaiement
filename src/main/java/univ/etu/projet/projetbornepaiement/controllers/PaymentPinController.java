@@ -24,7 +24,6 @@ public class PaymentPinController {
         amountLabel.setText(String.format("%.2f €", total));
 
         // 2. Démarrer l'écoute du PinPad (COM5)
-        // On utilise ton Service existant
         boolean started = PinPadService.getInstance().startListening("COM5", this::handlePinInput);
 
         if (!started) {
@@ -35,8 +34,15 @@ public class PaymentPinController {
         updatePinDisplay();
     }
 
-    // Méthode appelée quand le PinPad envoie une touche
+    /*// Méthode appelée quand le PinPad envoie une touche
     private void handlePinInput(String rawData) {
+        // --- DEBUT DEBUG ---
+        System.out.print("Reçu brut : '");
+        for (char c : rawData.toCharArray()) {
+            System.out.print(c + "' (ASCII: " + (int)c + ") ");
+        }
+        System.out.println("");
+        // --- FIN DEBUG ---
         String key = rawData.trim();
         if (key.isEmpty()) return;
 
@@ -69,8 +75,56 @@ public class PaymentPinController {
                 });
             }
         }
-    }
+    } */
+    // --- LA MÉTHODE FINALE ET TESTÉE ---
+    private void handlePinInput(String rawData) {
+        if (rawData == null || rawData.isEmpty()) return;
 
+        // On récupère le code ASCII du premier caractère
+        char firstChar = rawData.charAt(0);
+        int ascii = (int) firstChar;
+
+        // 1. CHIFFRES (0-9)
+        if (Character.isDigit(firstChar)) {
+            String digit = rawData.trim();
+            if (currentPin.length() < 4) {
+                currentPin.append(digit);
+                updatePinDisplay();
+                Platform.runLater(() -> statusLabel.setText("Saisie en cours..."));
+            }
+        }
+
+        // 2. CORRIGER (Touche Jaune : ASCII 8)
+        else if (ascii == 8) {
+            if (currentPin.length() > 0) {
+                currentPin.deleteCharAt(currentPin.length() - 1);
+                updatePinDisplay();
+            }
+        }
+
+        // 3. VALIDER (Touche Verte : ASCII 13)
+        else if (ascii == 13) {
+            if (currentPin.length() == 4) {
+                processPayment();
+            } else {
+                Platform.runLater(() -> {
+                    statusLabel.setText("Code incomplet (4 chiffres requis)");
+                    statusLabel.setStyle("-fx-text-fill: red;");
+                });
+            }
+        }
+
+        // 4. ANNULER (Touche Rouge : ASCII 27)
+        else if (ascii == 27) {
+            Platform.runLater(() -> {
+                try {
+                    handleCancel(); // Quitte l'écran de paiement
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
     private void updatePinDisplay() {
         // Affiche des ronds noirs
         StringBuilder visual = new StringBuilder();
@@ -92,7 +146,6 @@ public class PaymentPinController {
         String finalPin = currentPin.toString();
         System.out.println("PIN saisi pour transaction de " + amountLabel.getText() + " : " + finalPin);
 
-        // --- C'est ICI qu'on appellera JavaCard plus tard ---
         // boolean success = JavaCardService.verifyPin(finalPin);
 
         // Simulation pour l'instant :
@@ -110,7 +163,7 @@ public class PaymentPinController {
 
     @FXML
     private void handleCancel() throws IOException {
-        PinPadService.getInstance().stop(); // Toujours arrêter le service !
-        SceneManager.setRoot("welcome-view.fxml"); // Retour accueil ou panier
+        PinPadService.getInstance().stop();
+        SceneManager.setRoot("welcome-view.fxml");
     }
 }

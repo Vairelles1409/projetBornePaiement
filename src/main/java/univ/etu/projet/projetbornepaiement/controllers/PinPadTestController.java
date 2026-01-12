@@ -27,12 +27,21 @@ public class PinPadTestController {
         }
     }
 
-    // Méthode appelée quand le PinPad envoie quelque chose
-    private void afficherDonnees(String data) {
+    // Méthode appelée quand le PinPad envoie une valeur
+   /* private void afficherDonnees(String data) {
         // On affiche brut ce qui arrive
-        logArea.appendText("Reçu : " + data + "\n");
+        logArea.appendText("Reçu : " + data + "\n");  }*/
+        private void afficherDonnees(String data) {
+            System.out.print("TOUCHE REÇUE -> ");
 
-        // Debug dans la console IntelliJ aussi
+            // On convertit la chaîne en tableau de caractères pour voir le code de chacun
+            for (char c : data.toCharArray()) {
+                System.out.print("Symbole: [" + c + "] Code ASCII: " + (int)c + "  |  ");
+            }
+            System.out.println(""); // Retour à la ligne
+
+
+
         System.out.println("DEBUG COM5 : " + data);
     }
 
@@ -44,7 +53,7 @@ public class PinPadTestController {
 
     @FXML
     private void handleBack() throws IOException {
-        // On arrête le service proprement avant de quitter
+        // Arrêt de service
         PinPadService.getInstance().stop();
         SceneManager.setRoot("welcome-view.fxml");
     }
