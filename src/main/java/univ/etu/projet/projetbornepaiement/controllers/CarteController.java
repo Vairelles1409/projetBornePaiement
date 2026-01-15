@@ -11,7 +11,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import univ.etu.projet.projetbornepaiement.SceneManager;
 import univ.etu.projet.projetbornepaiement.models.Carte;
-import univ.etu.projet.projetbornepaiement.models.Produit;
+import univ.etu.projet.projetbornepaiement.models.Plat;
 
 import java.io.IOException;
 import java.util.Map;
@@ -29,19 +29,19 @@ public class CarteController {
 
     private void refreshCartDisplay() {
         cartContainer.getChildren().clear();
-        Map<Produit, Integer> items = Carte.getInstance().getItems();
+        Map<Plat, Integer> items = Carte.getInstance().getItems();
 
         if (items.isEmpty()) {
             cartContainer.getChildren().add(new Label("Votre panier est vide."));
         } else {
-            for (Map.Entry<Produit, Integer> entry : items.entrySet()) {
+            for (Map.Entry<Plat, Integer> entry : items.entrySet()) {
                 cartContainer.getChildren().add(createCartRow(entry.getKey(), entry.getValue()));
             }
         }
         updateTotal();
     }
 
-    private HBox createCartRow(Produit p, int quantity) {
+    private HBox createCartRow(Plat p, int quantity) {
         HBox row = new HBox(15);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-padding: 10; -fx-border-color: #ddd; -fx-border-width: 0 0 1 0;");

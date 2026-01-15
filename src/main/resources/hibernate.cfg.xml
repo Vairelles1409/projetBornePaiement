@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- A. Connexion à la base afoum_tchop -->
+        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/afoum_tchop?useSSL=false&amp;serverTimezone=UTC</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password"></property> <!-- Vide sous XAMPP -->
+
+        <!-- B. Paramètres Hibernate -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="show_sql">true</property> <!-- Affiche les requêtes dans la console -->
+        <property name="hbm2ddl.auto">update</property> <!-- Met à jour le schéma si nécessaire -->
+
+        <!-- C. Mapping de la classe Plat -->
+        <mapping class="univ.etu.projet.projetbornepaiement.models.Plat"/>
+    </session-factory>
+</hibernate-configuration>

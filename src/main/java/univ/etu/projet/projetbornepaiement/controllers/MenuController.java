@@ -4,65 +4,68 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.hibernate.Session;
 import univ.etu.projet.projetbornepaiement.SceneManager;
 import univ.etu.projet.projetbornepaiement.models.Carte;
-import univ.etu.projet.projetbornepaiement.models.ProductType;
-import univ.etu.projet.projetbornepaiement.models.Produit;
-import univ.etu.projet.projetbornepaiement.models.ProductType; // Import de l'Enum
+import univ.etu.projet.projetbornepaiement.models.Plat;       // Notre Entité Hibernate
+import univ.etu.projet.projetbornepaiement.models.TypeProduit; // Notre Enum
+import univ.etu.projet.projetbornepaiement.utils.HibernateUtil; // Notre utilitaire BDD
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import java.io.InputStream;
-
 public class MenuController {
 
-    // !!! ATTENTION : Dans ton FXML (menu-view.fxml), assure-toi que l'ID
-    // de la VBox principale est bien fx:id="menuContainer" et non plus productsGrid
-    @FXML private VBox menuContainer;
+    @FXML private VBox menuContainer; // Assure-toi que c'est bien une VBox dans le FXML
 
-    // Nouveaux éléments pour le Mini-Panier
+    // Éléments du Mini-Panier
     @FXML private VBox miniCartContainer;
     @FXML private Label miniTotalLabel;
 
-    private final List<Produit> productList = new ArrayList<>();
+    // On utilise maintenant une liste de "Plat"
+    private final List<Plat> productList = new ArrayList<>();
 
     @FXML
     public void initialize() {
-        // Initialisation des produits
-        loadFakeProducts();
+        // 1. Chargement depuis la Base de Données (Hibernate)
+        loadProductsFromDB();
 
-        // Affichage par blocs (Menus, Plats, Boissons...)
+        // 2. Génération de l'affichage
         generateMenuBlocks();
 
-        // Afficher le panier actuel dès l'ouverture
+        // 3. Affichage du panier existant
         refreshMiniCart();
     }
 
-    private void loadFakeProducts() {
-        // PLATS
-        productList.add(new Produit("Koki", 15.00, ProductType.PLAT, "/images/koki.png"));
-        productList.add(new Produit("Taro Sauce Jaune", 15.00, ProductType.PLAT, "taro.jpg"));
-        productList.add(new Produit("Kondre", 15.00, ProductType.PLAT, "kondre.jpg"));
-        productList.add(new Produit("2 Oeufs Spagetti", 15.00, ProductType.PLAT, "spagetti.png"));
+    private void loadProductsFromDB() {
+        productList.clear();
+        System.out.println("Connexion à la base de données...");
 
-        // BOISSONS
-        productList.add(new Produit("Petite Guiness", 3.00, ProductType.BOISSON, "guiness.png"));
-        productList.add(new Produit("Top Pamplemousse", 2.00, ProductType.BOISSON, "top.png"));
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Requête HQL pour récupérer tous les plats
+            List<Plat> platsBDD = session.createQuery("from Plat", Plat.class).list();
 
-        // DESSERT
-        productList.add(new Produit("BHB", 5.00, ProductType.DESSERT, "beignets.png"));
-        productList.add(new Produit("Kossam Dakere", 5.00, ProductType.DESSERT, "dakere.png"));
+            if (platsBDD.isEmpty()) {
+                System.out.println("⚠️ Attention : La table 'plats' est vide.");
+            } else {
+                productList.addAll(platsBDD);
+                System.out.println("✅ " + platsBDD.size() + " plats chargés depuis la BDD.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("❌ Erreur critique : Impossible de charger le menu depuis la base.");
+        }
     }
 
     /**
@@ -71,18 +74,18 @@ public class MenuController {
     private void generateMenuBlocks() {
         menuContainer.getChildren().clear();
 
-        // 1. Grouper les produits par Type
-        Map<ProductType, List<Produit>> productsByCategory = productList.stream()
-                .collect(Collectors.groupingBy(Produit::getType));
+        // 1. Grouper les plats par Type (MENU, PLAT, BOISSON...)
+        Map<TypeProduit, List<Plat>> productsByCategory = productList.stream()
+                .collect(Collectors.groupingBy(Plat::getType));
 
-        // 2. Parcourir l'Enum pour garder un ordre logique
-        for (ProductType type : ProductType.values()) {
+        // 2. Parcourir l'Enum pour garder un ordre logique d'affichage
+        for (TypeProduit type : TypeProduit.values()) {
 
             if (productsByCategory.containsKey(type)) {
-                List<Produit> productsInThisCategory = productsByCategory.get(type);
+                List<Plat> productsInThisCategory = productsByCategory.get(type);
 
                 // A. Titre de section
-                Label sectionTitle = new Label(type.getLabel());
+                Label sectionTitle = new Label(type.getLabel()); // Utilise le libellé de l'Enum (ex: "Nos Menus")
                 sectionTitle.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #333; -fx-padding: 0 0 10 0;");
 
                 // B. Grille pour cette section
@@ -92,10 +95,10 @@ public class MenuController {
 
                 int col = 0;
                 int row = 0;
-                for (Produit p : productsInThisCategory) {
+                for (Plat p : productsInThisCategory) {
                     sectionGrid.add(createProductBox(p), col, row);
                     col++;
-                    if (col == 3) { // 3 colonnes
+                    if (col == 3) { // 3 colonnes par ligne
                         col = 0;
                         row++;
                     }
@@ -106,7 +109,7 @@ public class MenuController {
                 sectionBox.getChildren().addAll(sectionTitle, sectionGrid);
                 menuContainer.getChildren().add(sectionBox);
 
-                // Espacement
+                // Espacement visuel
                 Region separator = new Region();
                 separator.setPrefHeight(20);
                 menuContainer.getChildren().add(separator);
@@ -114,79 +117,85 @@ public class MenuController {
         }
     }
 
-    private VBox createProductBox(Produit product) {
+    private VBox createProductBox(Plat plat) {
         VBox box = new VBox(10);
         box.setStyle("-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 10; -fx-padding: 15;");
         box.setAlignment(Pos.CENTER);
         box.setPrefWidth(200);
 
         // NOM
-        Label nameLabel = new Label(product.getName());
+        Label nameLabel = new Label(plat.getName());
         nameLabel.setWrapText(true);
         nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-alignment: center;");
 
         // IMAGE
         ImageView imageView = new ImageView();
-        imageView.setFitHeight(100); // Taille fixe hauteur
-        imageView.setFitWidth(150);  // Taille fixe largeur
-        imageView.setPreserveRatio(true); // Garder les proportions
+        imageView.setFitHeight(100);
+        imageView.setFitWidth(150);
+        imageView.setPreserveRatio(true);
 
-        // Chargement sécurisé de l'image
+        // Chargement de l'image (Chemin venant de la BDD, ex: "koki.png")
         try {
-            String path = "/images/" + product.getImage();
-            InputStream is = getClass().getResourceAsStream(path);
+            // On récupère le nom depuis la BDD
+            String fileName = plat.getImagePath();
 
-            if (is != null) {
-                imageView.setImage(new Image(is));
+            // On construit le chemin relatif vers le dossier resources/images
+            String fullPath = "/img/" + fileName;
+            java.net.URL imageURL = getClass().getResource(fullPath);
+
+            if (imageURL != null) {
+                imageView.setImage(new Image(imageURL.toExternalForm()));
             } else {
-                // Si l'image n'est pas trouvée, on met une image par défaut ou rien
-                // System.out.println("Image introuvable : " + path);
-                // Tu pourrais mettre une image "placeholder.png" ici
+                System.err.println("Image introuvable : " + fullPath);
+                java.net.URL fallback = getClass().getResource("/img/placeholder.png");
+                if (fallback != null) {
+                    imageView.setImage(new Image(fallback.toExternalForm()));
+                }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+
         // PRIX
-        Label priceLabel = new Label(product.getPrice() + " €");
+        Label priceLabel = new Label(String.format("%.2f €", plat.getPrice()));
         priceLabel.setStyle("-fx-text-fill: #E91E63; -fx-font-weight: bold; -fx-font-size: 14px;");
 
-        // 4. LE BOUTON
+        // BOUTON AJOUTER
         Button addButton = new Button("Ajouter");
         addButton.setStyle("-fx-background-color: #2196F3; -fx-text-fill: white; -fx-cursor: hand;");
         addButton.setOnAction(e -> {
-            Carte.getInstance().addProduct(product);
+            Carte.getInstance().addProduct(plat);
             refreshMiniCart();
         });
 
-        // Ordre d'ajout : Nom -> Image -> Prix -> Bouton
         box.getChildren().addAll(nameLabel, imageView, priceLabel, addButton);
         return box;
     }
 
-    // --- LOGIQUE DU MINI PANIER (identique à ton code) ---
+    // --- LOGIQUE DU MINI PANIER ---
 
     private void refreshMiniCart() {
         miniCartContainer.getChildren().clear();
-        Map<Produit, Integer> items = Carte.getInstance().getItems();
+        Map<Plat, Integer> items = Carte.getInstance().getItems();
 
-        for (Map.Entry<Produit, Integer> entry : items.entrySet()) {
+        for (Map.Entry<Plat, Integer> entry : items.entrySet()) {
             miniCartContainer.getChildren().add(createMiniCartRow(entry.getKey(), entry.getValue()));
         }
 
         miniTotalLabel.setText(String.format("%.2f €", Carte.getInstance().getTotal()));
     }
 
-    private HBox createMiniCartRow(Produit p, int qty) {
+    private HBox createMiniCartRow(Plat p, int qty) {
         HBox row = new HBox(5);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-border-color: #eee; -fx-border-width: 0 0 1 0; -fx-padding: 5;");
 
-        // Nom du produit
+        // Info Produit
         VBox infoBox = new VBox(2);
         Label nameLbl = new Label(p.getName());
         nameLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
-        // Limite taille nom
         nameLbl.setMaxWidth(120);
 
         Label priceLbl = new Label(String.format("%.2f €", p.getPrice() * qty));
@@ -196,6 +205,7 @@ public class MenuController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        // Boutons
         Button minusBtn = new Button("-");
         minusBtn.setStyle("-fx-font-size: 10px; -fx-min-width: 25px;");
         minusBtn.setOnAction(e -> {
@@ -215,7 +225,6 @@ public class MenuController {
             refreshMiniCart();
         });
 
-        // CROIX DE SUPPRESSION
         Button deleteBtn = new Button("✕");
         deleteBtn.setStyle("-fx-text-fill: red; -fx-background-color: transparent; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 12px;");
         deleteBtn.setOnAction(e -> {
@@ -234,6 +243,6 @@ public class MenuController {
 
     @FXML
     private void handleGoToCart() throws IOException {
-        SceneManager.setRoot("carte-view.fxml");
+        SceneManager.setRoot("carte-view.fxml"); // Je remets cart-view (nom standard)
     }
 }

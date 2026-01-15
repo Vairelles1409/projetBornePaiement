@@ -1,6 +1,6 @@
 package univ.etu.projet.projetbornepaiement.models;
 
-public enum ProductType {
+public enum TypeProduit {
     MENU("Nos Menus"),
     PLAT("Plats Traditionnels"),
     BOISSON("Boissons & Rafraîchissements"),
@@ -8,7 +8,7 @@ public enum ProductType {
 
     private final String label;
 
-    ProductType(String label) {
+    TypeProduit(String label) {
         this.label = label;
     }
 

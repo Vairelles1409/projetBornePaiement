@@ -8,7 +8,7 @@ public class Carte {
     private static Carte instance;
 
     // Stockage : Produit -> Quantité
-    private final Map<Produit, Integer> items = new HashMap<>();
+    private final Map<Plat, Integer> items = new HashMap<>();
 
     private Carte() {}
 
@@ -19,12 +19,12 @@ public class Carte {
         return instance;
     }
 
-    public void addProduct(Produit product) {
+    public void addProduct(Plat product) {
         // Si le produit existe déjà, on augmente la quantité (+1), sinon on le met à 1
         items.merge(product, 1, Integer::sum);
     }
 
-    public void removeProduct(Produit product) {
+    public void removeProduct(Plat product) {
         if (items.containsKey(product)) {
             int currentQty = items.get(product);
             if (currentQty > 1) {
@@ -39,7 +39,7 @@ public class Carte {
         items.clear();
     }
 
-    public Map<Produit, Integer> getItems() {
+    public Map<Plat, Integer> getItems() {
         return items;
     }
 
@@ -49,7 +49,7 @@ public class Carte {
                 .sum();
     }
 
-    public void deleteProduct(Produit product) {
+    public void deleteProduct(Plat product) {
         items.remove(product);
     }
 
