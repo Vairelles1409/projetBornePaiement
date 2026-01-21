@@ -18,5 +18,8 @@
 
         <!-- C. Mapping de la classe Plat -->
         <mapping class="univ.etu.projet.projetbornepaiement.models.Plat"/>
+        <mapping class="univ.etu.projet.projetbornepaiement.models.Client"/>
+        <mapping class="univ.etu.projet.projetbornepaiement.models.Commande"/>
+        <mapping class="univ.etu.projet.projetbornepaiement.models.LigneCommande"/>
     </session-factory>
 </hibernate-configuration>
