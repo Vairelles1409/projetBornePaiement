@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="univ.etu.projet.projetbornepaiement.controllers.QRTicketController">
+
+    <!-- TITRE -->
+    <top>
+        <VBox alignment="CENTER">
+            <Label text="Votre ticket"
+                   style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
+            <Region prefHeight="60"/>
+        </VBox>
+    </top>
+
+    <!-- CONTENU PRINCIPAL AVEC LOADER -->
+    <center>
+        <StackPane fx:id="stackPane" alignment="CENTER">
+
+            <!-- CONTENU PRINCIPAL (TICKET + QR) -->
+            <HBox fx:id="mainContent" spacing="80" alignment="CENTER" visible="false">
+
+                <!-- TICKET AVEC SCROLL -->
+                <ScrollPane fitToWidth="true"
+                            prefWidth="350"
+                            prefViewportHeight="420"
+                            style="-fx-padding: 0; -fx-background-color: transparent;">
+
+                    <VBox spacing="20"
+                          alignment="TOP_CENTER"
+                          style="-fx-background-color: #ffffff;
+                                 -fx-padding: 20;
+                                 -fx-border-color: #cccccc;
+                                 -fx-border-radius: 10;
+                                 -fx-background-radius: 10;">
+
+                        <Label text="Détails de la commande"
+                               style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+                        <VBox fx:id="ticketBox" spacing="10" style="-fx-padding: 10;"/>
+                    </VBox>
+                </ScrollPane>
+
+                <!-- QR CODE -->
+                <VBox spacing="20" alignment="CENTER">
+                    <ImageView fx:id="qrImageView"
+                               fitWidth="260"
+                               fitHeight="260"
+                               preserveRatio="true"
+                               style="-fx-effect: dropshadow(gaussian, #777777, 15, 0.3, 0, 0);"/>
+
+                    <Label text="Scannez votre QR Code"
+                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <!-- LOADER (Spinner) -->
+            <ProgressIndicator fx:id="loader" prefWidth="80" prefHeight="80"/>
+        </StackPane>
+    </center>
+
+    <!-- BOUTON FERMER -->
+    <bottom>
+        <VBox alignment="CENTER">
+            <Button text="Fermer"
+                    onAction="#closeWindow"
+                    style="-fx-font-size: 16px; -fx-padding: 10 25;"/>
+            <Region prefHeight="20"/>
+        </VBox>
+    </bottom>
+
+</BorderPane>
