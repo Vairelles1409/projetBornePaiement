@@ -10,6 +10,10 @@ module univ.etu.projet.projetbornepaiement {
     requires java.naming;
     // On ajoute bytebuddy au cas où, bien qu'il soit inclus dans hibernate
     requires net.bytebuddy;
+    requires io.nayuki.qrcodegen;
+    requires javafx.swing;
+    requires javafx.graphics;
+    requires java.desktop;
 
     opens univ.etu.projet.projetbornepaiement to javafx.fxml;
     opens univ.etu.projet.projetbornepaiement.controllers to javafx.fxml;
