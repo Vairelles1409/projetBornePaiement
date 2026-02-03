@@ -14,7 +14,7 @@
         <junit.version>5.12.1</junit.version>
     </properties>
 
-    <!-- Gestion du Port Série (PinPad) -->
+    <!-- Gestion du Port Série PinPad -->
     <dependencies>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -49,28 +49,28 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- 1. Hibernate Core (L'ORM qui fait le travail) -->
+        <!--  Hibernate Core (ORM ) -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>6.4.4.Final</version>
         </dependency>
 
-        <!-- 2. MySQL Connector (Le pilote) -->
+        <!-- MySQL Connector (Le pilote) -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.3.0</version>
         </dependency>
 
-        <!-- 3. Jakarta Persistence (Standard API) -->
+        <!-- Jakarta Persistence (Standard API) -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
             <version>3.1.0</version>
         </dependency>
 
-        <!-- 4. Java Naming (Nécessaire pour Hibernate 6+) -->
+        <!-- Java Naming -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
@@ -81,6 +81,24 @@
             <artifactId>byte-buddy</artifactId>
             <version>1.14.11</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- Génération de QR Codes (ZXing) -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>17.0.14</version>
         </dependency>
     </dependencies>
 

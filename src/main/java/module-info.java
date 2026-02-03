@@ -22,4 +22,11 @@ module univ.etu.projet.projetbornepaiement {
     exports univ.etu.projet.projetbornepaiement.models;
 
     exports univ.etu.projet.projetbornepaiement;
+
+    //exigence pour QR code
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
+
+    //requires java.desktop;
+    //requires javafx.swing;
 }

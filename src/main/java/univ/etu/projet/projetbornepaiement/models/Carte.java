@@ -9,6 +9,9 @@ public class Carte {
 
     // Stockage : Produit -> Quantité
     private final Map<Plat, Integer> items = new HashMap<>();
+    // Gestion de la réduction
+    private double discountAmount = 0.0;
+    private Coupon appliedCoupon = null; // Pour pouvoir le marquer comme utilisé plus tard
 
     private Carte() {}
 
@@ -35,21 +38,44 @@ public class Carte {
         }
     }
 
+
+    /*public void clear() {
+        items.clear();
+    }*/
     public void clear() {
         items.clear();
+        discountAmount = 0.0;
+        appliedCoupon = null;
     }
 
     public Map<Plat, Integer> getItems() {
         return items;
     }
 
-    public double getTotal() {
+    /*public double getTotal() {
         return items.entrySet().stream()
                 .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
                 .sum();
+    }*/
+    public double getTotal() {
+        double subTotal = items.entrySet().stream()
+                .mapToDouble(entry -> entry.getKey().getPrice() * entry.getValue())
+                .sum();
+
+        double finalTotal = subTotal - discountAmount;
+        return Math.max(finalTotal, 0); // On ne peut pas avoir un total négatif
     }
 
-    public void deleteProduct(Plat product) {
+    public void applyCoupon(Coupon coupon) {
+        this.appliedCoupon = coupon;
+        this.discountAmount = coupon.getValeur();
+    }
+
+    public Coupon getAppliedCoupon() { return appliedCoupon; }
+    public double getDiscountAmount() { return discountAmount; }
+
+
+        public void deleteProduct(Plat product) {
         items.remove(product);
     }
 
