@@ -21,5 +21,8 @@
         <mapping class="univ.etu.projet.projetbornepaiement.models.Client"/>
         <mapping class="univ.etu.projet.projetbornepaiement.models.Commande"/>
         <mapping class="univ.etu.projet.projetbornepaiement.models.LigneCommande"/>
-    </session-factory>
+
+        <!-- C. Mapping de la classe Coupon -->
+       <mapping class="univ.etu.projet.projetbornepaiement.models.Coupon"/>
+   </session-factory>
 </hibernate-configuration>
