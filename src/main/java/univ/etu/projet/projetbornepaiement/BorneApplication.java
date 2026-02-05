@@ -15,7 +15,7 @@ public class BorneApplication extends Application {
         stage.setTitle("Borne Paiement - Acceuil ");
         stage.setScene(scene);
         SceneManager.setStage(stage);
-        SceneManager.setRoot("Welcome-view.fxml");
+        SceneManager.setRoot("welcome-view.fxml");
         stage.show();
     }
 
