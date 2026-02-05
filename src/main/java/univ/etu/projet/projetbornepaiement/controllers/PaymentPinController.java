@@ -37,7 +37,7 @@ public class PaymentPinController {
         double total = Carte.getInstance().getTotal();
         amountLabel.setText(String.format("%.2f €", total));
 
-        PinPadService.getInstance().startListening("COM4", this::handlePinInput);
+        PinPadService.getInstance().startListening("COM6", this::handlePinInput);
         updatePinDisplay();
     }
 
@@ -90,7 +90,7 @@ public class PaymentPinController {
                     updatePinDisplay();
                 });
 
-                PinPadService.getInstance().startListening("COM4", this::handlePinInput);
+                PinPadService.getInstance().startListening("COM6", this::handlePinInput);
                 return;
             }
 
@@ -105,7 +105,7 @@ public class PaymentPinController {
                 });
 
                 // On relance l’écoute si nécessaire (même logique que PIN)
-                PinPadService.getInstance().startListening("COM4", this::handlePinInput);
+                PinPadService.getInstance().startListening("COM6", this::handlePinInput);
                 return;
             }
 
