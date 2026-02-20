@@ -62,4 +62,9 @@ public class CardCommunication {
         }
         return sb.toString().trim();
     }
+    public static short byte2short(byte[] value) {
+        if (value == null || value.length < 2) return 0;
+
+        return (short)(((value[0] & 0xFF) << 8) | (value[1] & 0xFF));
+    }
 }

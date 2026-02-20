@@ -16,7 +16,7 @@ public class PinPadTestController {
         logArea.setText("Initialisation du test sur COM5...\n");
 
         // Démarrage du service sur le port COM5
-        boolean success = PinPadService.getInstance().startListening("COM6", this::afficherDonnees);
+        boolean success = PinPadService.getInstance().startListening("COM5", this::afficherDonnees);
 
         if (success) {
             logArea.appendText(">> Port COM5 OUVERT avec succès.\n");

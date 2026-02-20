@@ -121,4 +121,28 @@ public class CardCommand {
             pinok = false;
         }
     }
+
+    //Affiache solde
+    public short getSoldeCarte() {
+        if (comm == null || !pinok) return -1; // Sécurité
+
+        try {
+            // Envoi de la commande GET_SOLDE (INS 0x50)
+            byte[] response = comm.sendApdu(CardCommunication.GET_SOLDE);
+
+            // Vérification du status word (90 00)
+            if (CardCommunication.toHexString(CardCommunication.statusWord).equals("90 00")) {
+                // Conversion des 2 octets reçus en short
+                // Utilise la méthode utilitaire de ta classe CardCommunication
+                short solde = CardCommunication.byte2short(response);
+                System.out.println("Solde lu sur la carte : " + solde);
+                return solde;
+            }
+            return -1; // Erreur
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
 }

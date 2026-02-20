@@ -8,12 +8,14 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class BorneApplication extends Application {
+
     @Override
     public void start(Stage stage) throws IOException {
+        stage.setTitle("Borne Paiement - AF'OUM TCHOP");
         FXMLLoader fxmlLoader = new FXMLLoader(BorneApplication.class.getResource("welcome-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Borne Paiement - Acceuil ");
-        stage.setScene(scene);
+        stage.setFullScreen(true);
+        stage.setFullScreenExitHint("");
+        stage.setResizable(false);
         SceneManager.setStage(stage);
         SceneManager.setRoot("welcome-view.fxml");
         stage.show();

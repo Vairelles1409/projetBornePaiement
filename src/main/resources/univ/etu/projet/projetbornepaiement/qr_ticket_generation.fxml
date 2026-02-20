@@ -1,75 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="univ.etu.projet.projetbornepaiement.controllers.QRTicketController">
+<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="univ.etu.projet.projetbornepaiement.controllers.QRTicketController">
 
-    <!-- TITRE -->
+    <!-- EN-TÊTE -->
     <top>
-        <VBox alignment="CENTER">
-            <Label text="Votre ticket"
-                   style="-fx-font-size: 32px; -fx-font-weight: bold;"/>
-            <Region prefHeight="60"/>
+        <VBox alignment="CENTER" spacing="10" style="-fx-background-color: #4CAF50; -fx-padding: 20;">
+            <Label text="Paiement Validé !" textFill="WHITE">
+                <font><Font name="System Bold" size="28.0" /></font>
+            </Label>
+            <!-- LE SOLDE S'AFFICHERA ICI -->
+            <Label fx:id="soldeLabel" text="Solde carte restant : -- €" textFill="WHITE">
+                <font><Font size="18.0" /></font>
+            </Label>
         </VBox>
     </top>
 
-    <!-- CONTENU PRINCIPAL AVEC LOADER -->
+    <!-- CENTRE -->
     <center>
-        <StackPane fx:id="stackPane" alignment="CENTER">
+        <StackPane fx:id="stackPane">
 
-            <!-- CONTENU PRINCIPAL (TICKET + QR) -->
-            <HBox fx:id="mainContent" spacing="80" alignment="CENTER" visible="false">
+            <!-- LOADER -->
+            <ProgressIndicator fx:id="loader" maxHeight="80.0" maxWidth="80.0" />
 
-                <!-- TICKET AVEC SCROLL -->
-                <ScrollPane fitToWidth="true"
-                            prefWidth="350"
-                            prefViewportHeight="420"
-                            style="-fx-padding: 0; -fx-background-color: transparent;">
+            <!-- CONTENU PRINCIPAL (Initialement invisible) -->
+            <HBox fx:id="mainContent" alignment="CENTER" spacing="50.0" visible="false">
+                <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
 
-                    <VBox spacing="20"
-                          alignment="TOP_CENTER"
-                          style="-fx-background-color: #ffffff;
-                                 -fx-padding: 20;
-                                 -fx-border-color: #cccccc;
-                                 -fx-border-radius: 10;
-                                 -fx-background-radius: 10;">
+                <!-- GAUCHE : TICKET DÉTAILLÉ -->
+                <VBox alignment="TOP_CENTER" spacing="10" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0); -fx-background-radius: 10;">
+                    <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
 
-                        <Label text="Détails de la commande"
-                               style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                    <Label text="Détails de la commande" textFill="#555">
+                        <font><Font name="System Bold" size="18.0" /></font>
+                    </Label>
+                    <Region prefHeight="10" />
 
-                        <VBox fx:id="ticketBox" spacing="10" style="-fx-padding: 10;"/>
-                    </VBox>
-                </ScrollPane>
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="300.0" prefWidth="320.0" style="-fx-background-color: transparent; -fx-background: white;">
+                        <content>
+                            <VBox fx:id="ticketBox" spacing="8.0" />
+                        </content>
+                    </ScrollPane>
+                </VBox>
 
-                <!-- QR CODE -->
-                <VBox spacing="20" alignment="CENTER">
-                    <ImageView fx:id="qrImageView"
-                               fitWidth="260"
-                               fitHeight="260"
-                               preserveRatio="true"
-                               style="-fx-effect: dropshadow(gaussian, #777777, 15, 0.3, 0, 0);"/>
-
-                    <Label text="Scannez votre QR Code"
-                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <!-- DROITE : QR CODE -->
+                <VBox alignment="CENTER" spacing="15">
+                    <ImageView fx:id="qrImageView" fitHeight="250.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 0);" />
+                    <Label text="Scannez pour conserver" textFill="#777">
+                        <font><Font name="System Italic" size="14.0" /></font>
+                    </Label>
                 </VBox>
             </HBox>
-
-            <!-- LOADER (Spinner) -->
-            <ProgressIndicator fx:id="loader" prefWidth="80" prefHeight="80"/>
         </StackPane>
     </center>
 
-    <!-- BOUTON FERMER -->
+    <!-- PIED DE PAGE -->
     <bottom>
-        <VBox alignment="CENTER">
-            <Button text="Fermer"
-                    onAction="#closeWindow"
-                    style="-fx-font-size: 16px; -fx-padding: 10 25;"/>
-            <Region prefHeight="20"/>
+        <VBox alignment="CENTER" style="-fx-padding: 20;">
+            <Button onAction="#closeWindow" style="-fx-background-color: #2196F3; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 30; -fx-background-radius: 20; -fx-cursor: hand;" text="Terminer et Retour Accueil" />
         </VBox>
     </bottom>
 

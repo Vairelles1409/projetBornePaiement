@@ -12,6 +12,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.hibernate.Session;
+import univ.etu.projet.projetbornepaiement.BorneApplication;
 import univ.etu.projet.projetbornepaiement.SceneManager;
 import univ.etu.projet.projetbornepaiement.models.Carte;
 import univ.etu.projet.projetbornepaiement.models.Plat;       // Notre Entité Hibernate
@@ -24,6 +25,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class MenuController {
 
@@ -98,7 +107,7 @@ public class MenuController {
                 for (Plat p : productsInThisCategory) {
                     sectionGrid.add(createProductBox(p), col, row);
                     col++;
-                    if (col == 3) { // 3 colonnes par ligne
+                    if (col == 5) { // x colonnes par ligne
                         col = 0;
                         row++;
                     }
@@ -119,6 +128,56 @@ public class MenuController {
 
     private VBox createProductBox(Plat plat) {
         VBox box = new VBox(10);
+        // Style de base : Blanc, Ombre légère, Curseur main
+        box.setStyle("-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 10; -fx-padding: 15; -fx-cursor: hand;");
+        box.setAlignment(Pos.CENTER);
+        box.setPrefWidth(200);
+
+        // 1. Nom
+        Label nameLabel = new Label(plat.getName());
+        nameLabel.setWrapText(true);
+        nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-alignment: center;");
+
+        // 2. Image
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(120);
+        imageView.setFitWidth(160);
+        imageView.setPreserveRatio(true);
+
+        try {
+            // Chargement robuste de l'image
+            String imagePath = "/img/" + plat.getImagePath().trim();
+            URL url = BorneApplication.class.getResource(imagePath); // Utilise ta classe Main ici
+
+            if (url != null) {
+                imageView.setImage(new Image(url.toExternalForm()));
+            } else {
+                // Image par défaut si introuvable
+                // System.err.println("Image introuvable: " + imagePath);
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        // 3. Prix
+        Label priceLabel = new Label(String.format("%.2f €", plat.getPrice()));
+        priceLabel.setStyle("-fx-text-fill: #E91E63; -fx-font-weight: bold; -fx-font-size: 16px;");
+
+        // 4. ACTION AU CLIC (Animation + Ajout)
+        box.setOnMouseClicked(event -> {
+            System.out.println("Ajout : " + plat.getName());
+
+            // Lancer l'animation
+            animateProductSelection(box);
+
+            // Logique métier
+            Carte.getInstance().addProduct(plat);
+            refreshMiniCart();
+        });
+
+        box.getChildren().addAll(nameLabel, imageView, priceLabel);
+        return box;
+    }
+    /*private VBox createProductBox(Plat plat) {
+        VBox box = new VBox(10);
         box.setStyle("-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0); -fx-background-radius: 10; -fx-padding: 15;");
         box.setAlignment(Pos.CENTER);
         box.setPrefWidth(200);
@@ -134,7 +193,7 @@ public class MenuController {
         imageView.setFitWidth(150);
         imageView.setPreserveRatio(true);
 
-        // Chargement de l'image (Chemin venant de la BDD, ex: "koki.png")
+        // Chargement de l'image
         try {
             // On récupère le nom depuis la BDD
             String fileName = plat.getImagePath();
@@ -172,7 +231,7 @@ public class MenuController {
 
         box.getChildren().addAll(nameLabel, imageView, priceLabel, addButton);
         return box;
-    }
+    }*/
 
     // --- LOGIQUE DU MINI PANIER ---
 
@@ -192,12 +251,11 @@ public class MenuController {
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-border-color: #eee; -fx-border-width: 0 0 1 0; -fx-padding: 5;");
 
-        // Info Produit
+        // Infos
         VBox infoBox = new VBox(2);
         Label nameLbl = new Label(p.getName());
         nameLbl.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
         nameLbl.setMaxWidth(120);
-
         Label priceLbl = new Label(String.format("%.2f €", p.getPrice() * qty));
         priceLbl.setStyle("-fx-font-size: 10px; -fx-text-fill: gray;");
         infoBox.getChildren().addAll(nameLbl, priceLbl);
@@ -205,12 +263,13 @@ public class MenuController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Boutons
+        // --- BOUTON MOINS (Gère la suppression) ---
         Button minusBtn = new Button("-");
-        minusBtn.setStyle("-fx-font-size: 10px; -fx-min-width: 25px;");
+        minusBtn.setStyle("-fx-font-size: 10px; -fx-min-width: 25px; -fx-cursor: hand;");
         minusBtn.setOnAction(e -> {
+            // La méthode removeProduct de Carte gère déjà : si qty=1 -> supprime
             Carte.getInstance().removeProduct(p);
-            refreshMiniCart();
+            refreshMiniCart(); // Rafraîchit l'affichage (la ligne disparaîtra si qty était 1)
         });
 
         Label qtyLbl = new Label(String.valueOf(qty));
@@ -218,21 +277,17 @@ public class MenuController {
         qtyLbl.setAlignment(Pos.CENTER);
         qtyLbl.setStyle("-fx-font-size: 12px;");
 
+        // --- BOUTON PLUS ---
         Button plusBtn = new Button("+");
-        plusBtn.setStyle("-fx-font-size: 10px; -fx-min-width: 25px;");
+        plusBtn.setStyle("-fx-font-size: 10px; -fx-min-width: 25px; -fx-cursor: hand;");
         plusBtn.setOnAction(e -> {
             Carte.getInstance().addProduct(p);
             refreshMiniCart();
         });
 
-        Button deleteBtn = new Button("✕");
-        deleteBtn.setStyle("-fx-text-fill: red; -fx-background-color: transparent; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 12px;");
-        deleteBtn.setOnAction(e -> {
-            Carte.getInstance().deleteProduct(p);
-            refreshMiniCart();
-        });
+        // ON NE MET PLUS LE BOUTON DELETE (deleteBtn)
 
-        row.getChildren().addAll(infoBox, spacer, minusBtn, qtyLbl, plusBtn, deleteBtn);
+        row.getChildren().addAll(infoBox, spacer, minusBtn, qtyLbl, plusBtn);
         return row;
     }
 
@@ -244,5 +299,52 @@ public class MenuController {
     @FXML
     private void handleGoToCart() throws IOException {
         SceneManager.setRoot("carte-view.fxml"); // Je remets cart-view (nom standard)
+    }
+
+    /**
+     * Anime la boîte produit : petit effet de recul + lueur verte.
+     */
+    private void animateProductSelection(VBox box) {
+        // 1. Création de l'effet "Lumière" (Glow)
+        DropShadow glow = new DropShadow();
+        glow.setColor(Color.LIMEGREEN); // Couleur de la lumière
+        glow.setRadius(0); // Au début, pas de rayon
+        glow.setSpread(0.5); // Intensité de la lumière
+
+        // On applique l'effet à la boîte
+        box.setEffect(glow);
+
+        // 2. Création de la Timeline pour animer les propriétés
+        Timeline timeline = new Timeline();
+
+        // Étape A : État initial (0ms)
+        KeyFrame kf0 = new KeyFrame(Duration.ZERO,
+                new KeyValue(box.scaleXProperty(), 1.0),
+                new KeyValue(box.scaleYProperty(), 1.0),
+                new KeyValue(glow.radiusProperty(), 0)
+        );
+
+        // Étape B : Enfoncement + Lumière max (100ms)
+        KeyFrame kf1 = new KeyFrame(Duration.millis(100),
+                new KeyValue(box.scaleXProperty(), 0.95), // Rétrécit légèrement (clic)
+                new KeyValue(box.scaleYProperty(), 0.95),
+                new KeyValue(glow.radiusProperty(), 30)   // La lumière brille fort
+        );
+
+        // Étape C : Retour à la normale (300ms)
+        KeyFrame kf2 = new KeyFrame(Duration.millis(300),
+                new KeyValue(box.scaleXProperty(), 1.0),
+                new KeyValue(box.scaleYProperty(), 1.0),
+                new KeyValue(glow.radiusProperty(), 0)    // La lumière s'éteint
+        );
+
+        timeline.getKeyFrames().addAll(kf0, kf1, kf2);
+
+        // 3. À la fin, on remet l'ombre portée grise d'origine pour le style
+        timeline.setOnFinished(event -> {
+            box.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, Color.rgb(0,0,0,0.1), 5, 0, 0, 0));
+        });
+
+        timeline.play();
     }
 }

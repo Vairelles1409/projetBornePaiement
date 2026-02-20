@@ -2,11 +2,7 @@ package univ.etu.projet.projetbornepaiement.controllers;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import univ.etu.projet.projetbornepaiement.SceneManager;
@@ -18,26 +14,27 @@ import univ.etu.projet.projetbornepaiement.utils.PinPadService;
 import java.io.IOException;
 import java.util.Map;
 
-
+// Classe utilitaire pour passer les données à la vue suivante
 class CommandeHolder {
     public static Commande instance;
+    public static double soldeRestant = -1;
 }
-
 
 public class PaymentPinController {
 
     @FXML private Label amountLabel;
     @FXML private Label pinDisplayLabel;
     @FXML private Label statusLabel;
+
     private StringBuilder currentPin = new StringBuilder();
-    private Commande instance_commande;
 
     @FXML
     public void initialize() {
         double total = Carte.getInstance().getTotal();
         amountLabel.setText(String.format("%.2f €", total));
 
-        PinPadService.getInstance().startListening("COM6", this::handlePinInput);
+        // Démarrage PinPad
+        PinPadService.getInstance().startListening("COM5", this::handlePinInput);
         updatePinDisplay();
     }
 
@@ -75,22 +72,25 @@ public class PaymentPinController {
     private void processPayment() {
         PinPadService.getInstance().stop(); // Stop Clavier
 
-        Platform.runLater(() -> statusLabel.setText("Vérification Carte en cours..."));
+        Platform.runLater(() -> {
+            statusLabel.setText("Traitement bancaire en cours...");
+            statusLabel.setStyle("-fx-text-fill: blue;");
+        });
 
         new Thread(() -> {
             // 1. VERIFY PIN
             boolean pinOk = CardCommand.getInstance().verifierPin(currentPin.toString());
+
             if (!pinOk) {
                 int essais = CardCommand.getInstance().seuilPin;
-
                 Platform.runLater(() -> {
                     statusLabel.setText("PIN Faux ! Reste " + essais + " essais.");
                     statusLabel.setStyle("-fx-text-fill: red;");
                     currentPin.setLength(0);
                     updatePinDisplay();
+                    // On relance l'écoute
+                    PinPadService.getInstance().startListening("COM5", this::handlePinInput);
                 });
-
-                PinPadService.getInstance().startListening("COM6", this::handlePinInput);
                 return;
             }
 
@@ -98,75 +98,103 @@ public class PaymentPinController {
             boolean debitOk = CardCommand.getInstance().debiterCarte(Carte.getInstance().getTotal());
 
             if (!debitOk) {
-
                 Platform.runLater(() -> {
                     statusLabel.setText("Solde insuffisant !");
                     statusLabel.setStyle("-fx-text-fill: red;");
+                    // On relance l'écoute si tu veux permettre de réessayer (optionnel ici car échec bancaire)
+                    PinPadService.getInstance().startListening("COM5", this::handlePinInput);
                 });
-
-                // On relance l’écoute si nécessaire (même logique que PIN)
-                PinPadService.getInstance().startListening("COM6", this::handlePinInput);
                 return;
             }
 
-            // 3. HIBERNATE SAVE
-            boolean saved = saveToDB();
+            // 3. RECUPERATION DU SOLDE (IMPORTANT : AVANT de déconnecter la carte)
+            short soldeShort = CardCommand.getInstance().getSoldeCarte();
 
-            if (saved) {
+            // 4. SAUVEGARDE BDD (Et déconnexion carte)
+            Commande commandeValidee = saveToDB();
+
+            if (commandeValidee != null) {
+                // Stockage dans le Holder pour l'écran suivant
+                CommandeHolder.instance = commandeValidee;
+                CommandeHolder.soldeRestant = (double) soldeShort;
+
                 Platform.runLater(() -> {
-                    // Charger la vue QR Code
-                    try {
-                        FXMLLoader loader = new FXMLLoader(
-                                getClass().getResource("/univ/etu/projet/projetbornepaiement/qr_ticket_generation.fxml")
-                        );
-
-                        Parent root = loader.load();
-                        CommandeHolder.instance = instance_commande;
-
-                        // Mettre à jour le label de statut
-                        statusLabel.setText("PAIEMENT VALIDÉ !");
-                        statusLabel.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
-                        SceneManager.setRoot("qr_ticket_generation.fxml");
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    // Mise à jour visuelle succès
+                    String msg = "PAIEMENT VALIDÉ !";
+                    if (soldeShort != -1) {
+                        msg += "\nSolde restant : " + soldeShort + " €";
                     }
+                    statusLabel.setText(msg);
+                    statusLabel.setStyle("-fx-text-fill: green; -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-alignment: center;");
+
+                    // Délai de 2 secondes avant changement de page pour lire le message
+                    new Thread(() -> {
+                        try { Thread.sleep(2000); } catch (InterruptedException e) {}
+                        Platform.runLater(() -> {
+                            try {
+                                // Navigation vers l'écran QR / Ticket
+                                SceneManager.setRoot("qr_ticket_generation.fxml");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }).start();
+                });
+            } else {
+                Platform.runLater(() -> {
+                    statusLabel.setText("Erreur système (Sauvegarde)");
+                    statusLabel.setStyle("-fx-text-fill: red;");
                 });
             }
 
         }).start();
     }
 
-        private boolean saveToDB() {
-            try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-                Transaction tx = session.beginTransaction();
+    /**
+     * Retourne l'objet Commande créé, ou null si erreur
+     */
+    private Commande saveToDB() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Transaction tx = session.beginTransaction();
 
-                Client client = session.get(Client.class, 3); // Kelly
-                if (client == null) {
-                    client = new Client(3);
-                    session.persist(client);
-                }
-
-                Commande cmd = new Commande(client, Carte.getInstance().getTotal());
-                session.persist(cmd);
-
-                instance_commande = cmd;
-
-                for (Map.Entry<Plat, Integer> entry : Carte.getInstance().getItems().entrySet()) {
-                    LigneCommande ligne = new LigneCommande(entry.getKey(), entry.getValue());
-                    cmd.addLigne(ligne);
-                }
-
-                tx.commit();
-                // Nettoyage final
-                Carte.getInstance().clear();
-                CardCommand.getInstance().disconnect();
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
+            Client client = session.get(Client.class, 3); // Kelly
+            if (client == null) {
+                client = new Client(3);
+                // session.persist(client); // Attention : persist seulement si l'ID n'existe pas du tout
             }
+
+            Commande cmd = new Commande(client, Carte.getInstance().getTotal());
+            session.persist(cmd);
+
+            for (Map.Entry<Plat, Integer> entry : Carte.getInstance().getItems().entrySet()) {
+                LigneCommande ligne = new LigneCommande(entry.getKey(), entry.getValue());
+                cmd.addLigne(ligne);
+            }
+
+            // Gestion consommation coupon
+            Coupon couponApplique = Carte.getInstance().getAppliedCoupon();
+            if (couponApplique != null) {
+                Coupon c = session.get(Coupon.class, couponApplique.getId());
+                if (c != null) {
+                    c.setStatus("UTILISE");
+                    session.merge(c);
+                }
+            }
+
+            tx.commit();
+
+            // Nettoyage final
+            Carte.getInstance().clear();
+            CardCommand.getInstance().disconnect(); // C'est ici qu'on coupe la carte
+
+            return cmd; // On retourne l'objet
+        } catch (Exception e) {
+            e.printStackTrace();
+            // En cas d'erreur BDD, on déconnecte quand même la carte
+            CardCommand.getInstance().disconnect();
+            return null;
         }
+    }
 
     @FXML
     private void handleCancel() throws IOException {
@@ -175,4 +203,3 @@ public class PaymentPinController {
         SceneManager.setRoot("welcome-view.fxml");
     }
 }
-
